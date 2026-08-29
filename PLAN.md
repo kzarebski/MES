@@ -64,6 +64,8 @@ production/
 
 ---
 
+> **Prerequisite:** See `docs/adr/README.md` → "Agent Tooling & Guardrails Prerequisites" before starting Phase 0. AI agent guardrails (scope of autonomous action vs. what needs human sign-off) are flagged there as a pending action point — not yet researched or decided.
+
 ## Phase 0: Project Skeleton
 
 - [ ] **0.1** Create `settings.gradle.kts` with subprojects: `shared-kernel`, `edge-backend`, `cloud-backend`, `simulator`
