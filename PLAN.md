@@ -12,6 +12,7 @@
 8. **Shift Left:** Every vertical slice/phase gets an architecture and security evaluation both *before* implementation starts (design-time — does the planned approach fit the principles above, does it introduce a security concern) and *after* the code is written (a check, not a replacement). Phase 15 (E2E & Hardening) is a final, cross-cutting pass — it does not replace per-slice evaluation earlier. See `CLAUDE.md`.
 9. **No Single Point of Assumption Failure:** Don't let a slice's design hinge entirely on one unverified technical detail (a library's behavior, a protocol capability, an external system's guarantee). State load-bearing assumptions explicitly and verify them early; prefer designs that degrade gracefully or need only a local fix if an assumption turns out wrong, over ones that would require a wholesale redesign. See `CLAUDE.md`.
 10. **Design for Testability:** For every slice/phase, explicitly answer "how will this be tested end-to-end?" as part of the design, not only once Phase 15 (E2E Testing & Production Hardening) arrives. A design that makes E2E testing hard or unclear is a design flaw to fix at design time (a testable seam, a fake, Testcontainers, or the Simulator module) — this is why Phase 13 (Simulator) exists ahead of Phase 15. See `CLAUDE.md`.
+11. **Contract Testing:** Every REST boundary between separately deployable parts (Edge↔Cloud sync, Cloud user-management API, Frontend↔Cloud API) needs contract tests verifying the consumer's actual expectations against the provider, not just each side's own unit/integration tests — added at the slice that introduces the boundary, not deferred to Phase 15. Tooling (e.g., Pact) is an open decision — see [ADR-0005](../docs/adr/0005-contract-testing-tooling.md). See `CLAUDE.md`.
 
 ## Repository Structure
 
@@ -114,6 +115,7 @@ production/
 ### Edge→Cloud Sync
 - [ ] **1.23** **Edge infrastructure:** `CloudSyncAdapter` (implements `CloudSyncPort`) — REST client pushing operation events to Cloud
 - [ ] **1.24** Add `ProductEventDto` to `shared-kernel/api/` for the Edge→Cloud contract
+- [ ] **1.25** Contract test for the `ProductEventDto` / `POST /api/edge/sync/operations` boundary — pending tooling decision, [ADR-0005](../docs/adr/0005-contract-testing-tooling.md)
 
 ---
 
@@ -391,7 +393,7 @@ production/
 - [ ] **15.2** E2E: full product lifecycle (create → operations → quality → pack → ship)
 - [ ] **15.3** E2E: scrap/rework flow (defect → scrap or repair → repass)
 - [ ] **15.4** E2E: full traceability chain (product → components, container → products)
-- [ ] **15.5** E2E: Edge→Cloud sync (data flows correctly, idempotent)
+- [ ] **15.5** E2E: Edge→Cloud sync (data flows correctly, idempotent) — complements, does not replace, the per-boundary contract tests from Guiding Principle 11
 - [ ] **15.6** E2E: recipe versioning (new recipe → propagates to Edge → products linked to correct version)
 - [ ] **15.7** Load test: simulator running 10K products, verify zero performance degradation
 - [ ] **15.8** HikariCP connection pool tuning

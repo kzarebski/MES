@@ -43,6 +43,7 @@ The system consists of two main environments communicating via REST API and asyn
 ## 6. QA & Testing Strategy
 * **Unit Tests:** Primary focus on the Domain layer (Hexagonal architecture).
 * **Integration Tests:** Utilizing Testcontainers for database and adapter verification.
+* **Contract Tests:** Every REST boundary between separately deployable parts (Edge↔Cloud sync, Cloud user-management API, Frontend↔Cloud API) requires contract tests verifying consumer expectations against the provider, so breaking changes are caught in CI, not at E2E. Tooling (e.g., Pact) is an open decision — see [ADR-0005](docs/adr/0005-contract-testing-tooling.md).
 * **E2E Tests:** Verifying critical data flow paths.
 * **Traffic Simulator:** A separate module with a UI to configure virtual machines and generate realistic test traffic for Edge/Cloud systems.
     * **Performance Requirement:** The simulator must scale to run a large number of concurrent virtual production machines on a single instance — target range 1,000–10,000 — by leveraging Java Virtual Threads and lightweight per-machine state. This is a priority NFR: simulator throughput must not become the bottleneck when load-testing Edge/Cloud.

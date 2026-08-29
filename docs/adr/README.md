@@ -27,3 +27,4 @@ Routine implementation choices within an already-agreed slice do not need one.
 | [0002](0002-error-handling-for-expected-business-outcomes.md) | Error Handling for Expected (Non-Exceptional) Business Outcomes | Proposed — decision pending |
 | [0003](0003-microkernel-architecture-consideration.md) | Microkernel (Plug-in) Architecture Consideration | Proposed — decision pending |
 | [0004](0004-logging-and-tracing-standard.md) | Logging & Distributed Tracing Standard | Proposed — decision pending |
+| [0005](0005-contract-testing-tooling.md) | Contract Testing Tooling | Proposed — decision pending |
