@@ -4,7 +4,7 @@
 Develop a distributed application for monitoring and managing production lines. The system must operate in real-time, guarantee quality control (stopping defective products at any stage/machine), ensure full traceability of components and process parameters, and guarantee zero performance degradation to production machines.
 
 ## 2. System Architecture
-The system consists of two main environments communicating via REST API and async events:
+The system consists of two main environments communicating via REST API and async events. Both follow **Domain-Driven Design (DDD)** in their Domain layers: ubiquitous language, Aggregates enforcing their own invariants, Value Objects, Domain Services, Domain Events, and each vertical-slice module as its own Bounded Context. Established domain archetypes/analysis patterns (e.g., Party, Product, Rule Engine) should be considered per concept but only adopted where they genuinely fit MES's own rules — see `CLAUDE.md`.
 * **Edge (Local Instance):** A high-performance server deployed at the machines.
     * **Architecture:** Modular Monolith incorporating Hexagonal Architecture (Ports & Adapters) within each vertical slice.
     * **Responsibilities:** Low-latency machine control (MQTT/OPC UA), local data buffering, and immediate quality evaluations.
