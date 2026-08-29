@@ -16,6 +16,7 @@
 12. **Tool & Skill Evaluation:** Potentially useful AI agent skills and developer tools/libraries (testing frameworks, architecture-fitness-function tools, linters, CI integrations, etc.) should be surfaced proactively as they become relevant to a slice/phase, then evaluated before adoption — a lightweight fit-check for routine additions, or an ADR for anything cross-cutting or hard to reverse. This is an ongoing activity across all phases, not a one-time step. See `CLAUDE.md`.
 13. **Documentation Standard:** Every decision, implementation, design/architecture choice, and security consideration gets documented — concisely but precisely, the *why* and its consequences, not a restatement of the obvious. ADRs for cross-cutting decisions, Javadoc/`package-info.java` for public Domain/Application code and module boundaries, explicit security notes wherever a security consideration was actually evaluated. See `CLAUDE.md`.
 14. **No Primitive Obsession & Readable Code:** Wrap any primitive that carries domain meaning (a serial number, a quantity with a unit, a recipe version ID) in a Value Object rather than passing it around raw. Write code that reads top-to-bottom like prose — intention-revealing names, small methods at one level of abstraction, minimal nesting, no clever one-liners. See `CLAUDE.md`.
+15. **Design for Observability:** For every slice/phase, explicitly answer "how will we observe and monitor this at runtime?" (logs, metrics, trace spans) as part of the design, not only once Phase 10 (Observability & Distributed Tracing) arrives — Shift Left applied to observability specifically. A component whose behavior or failure modes would be invisible at runtime is a design flaw to fix at design time. See `CLAUDE.md`.
 
 ## Repository Structure
 
@@ -312,6 +313,8 @@ production/
 ## Phase 10: Observability & Distributed Tracing
 
 > **BLOCKED on [ADR-0004](../docs/adr/0004-logging-and-tracing-standard.md):** the tracing standard/bridge (e.g., OpenTelemetry vs. Zipkin/B3) is not yet decided. Steps 10.3-10.6 (healthchecks, Prometheus metrics, Grafana dashboards) don't depend on it and may proceed, but **10.1-10.2 (tracer configuration and propagation) should not be implemented for real** until ADR-0004 is `Accepted` — the propagation format and exporter choice hinge on it, including the non-standard MQTT hop noted in the ADR.
+>
+> Per Guiding Principle 15 (Design for Observability), this phase builds the *cross-cutting* tracing/metrics infrastructure — it is not the first point at which observability gets considered. Phases 1-9 and 11+ should already have decided, at design time, what each of their components logs/emits on the axes this phase wires up.
 
 - [ ] **10.1** Configure Micrometer Tracing — `TraceID` propagation via MDC in both Edge and Cloud (tracer/bridge per ADR-0004)
 - [ ] **10.2** MDC filter injects `TraceID` into every log line; Edge events carry TraceID to Cloud

@@ -35,6 +35,7 @@ The system consists of two main environments communicating via REST API and asyn
     * Changes to line/machine parameters follow the Immutability principle—creating a new version rather than overwriting. Each produced item is hard-linked to the specific version ID of the configuration active during its processing.
 
 ## 5. Observability & Distributed Tracing
+* **Design for Observability:** Observability is considered at every design/implementation step, not only once the sections below are built out — see `CLAUDE.md`'s "Design for Observability" principle. A component whose behavior or failure modes would be invisible at runtime is a design flaw to fix at design time.
 * **Distributed Tracing:** Every request carries a unique `TraceID` passed between Edge and Cloud logs (e.g., using MDC, Micrometer Tracing). **Open Decision:** the specific tracing standard/bridge to target (e.g., OpenTelemetry vs. Zipkin/B3) has not been decided — pending [ADR-0004](docs/adr/0004-logging-and-tracing-standard.md).
 * **Healthchecks:** Edge monitors machine connectivity; Cloud monitors Edge instance uptime (Spring Boot Actuator).
 * **Metrics (Prometheus/Grafana):** * Technical: Request rates, communication errors. 
