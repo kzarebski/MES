@@ -300,7 +300,9 @@ production/
 
 ## Phase 10: Observability & Distributed Tracing
 
-- [ ] **10.1** Configure Micrometer Tracing — `TraceID` propagation via MDC in both Edge and Cloud
+> **BLOCKED on [ADR-0004](../docs/adr/0004-logging-and-tracing-standard.md):** the tracing standard/bridge (e.g., OpenTelemetry vs. Zipkin/B3) is not yet decided. Steps 10.3-10.6 (healthchecks, Prometheus metrics, Grafana dashboards) don't depend on it and may proceed, but **10.1-10.2 (tracer configuration and propagation) should not be implemented for real** until ADR-0004 is `Accepted` — the propagation format and exporter choice hinge on it, including the non-standard MQTT hop noted in the ADR.
+
+- [ ] **10.1** Configure Micrometer Tracing — `TraceID` propagation via MDC in both Edge and Cloud (tracer/bridge per ADR-0004)
 - [ ] **10.2** MDC filter injects `TraceID` into every log line; Edge events carry TraceID to Cloud
 - [ ] **10.3** Spring Boot Actuator healthchecks — Edge monitors machine connectivity, Cloud monitors Edge uptime
 - [ ] **10.4** Prometheus metrics endpoint (`/actuator/prometheus`) on both apps
