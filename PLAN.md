@@ -9,6 +9,7 @@
 5. **Monorepo:** All modules (`shared-kernel`, `edge-backend`, `cloud-backend`, `simulator`, `frontend`) live in a single repository.
 6. **Helm Deployments:** Cloud on k8s, Edge on k3s — both managed via Helm charts.
 7. **TDD:** For every numbered step below that produces code, the "Tests" item listed for that piece is written and run red *before* the corresponding Domain/Application/Infrastructure code, not after — the numbering reflects deliverables, not coding order. See `CLAUDE.md`.
+8. **Shift Left:** Every vertical slice/phase gets an architecture and security evaluation both *before* implementation starts (design-time — does the planned approach fit the principles above, does it introduce a security concern) and *after* the code is written (a check, not a replacement). Phase 15 (E2E & Hardening) is a final, cross-cutting pass — it does not replace per-slice evaluation earlier. See `CLAUDE.md`.
 
 ## Repository Structure
 
