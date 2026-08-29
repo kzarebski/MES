@@ -4,10 +4,19 @@
 
 1. **Vertical Slicing:** Each feature is built as a complete slice (Domain → Application → Infrastructure → Tests) before moving to the next.
 2. **Incremental Shared Kernel:** Value objects, DTOs, and events are added to `shared-kernel` only when a slice requires cross-module communication.
-3. **Modular Monolith:** Both Edge and Cloud are structured as modular monoliths with strict module isolation — cross-module communication via Facades or Domain Events only.
+3. **Modular Monolith:** Both Edge and Cloud are structured as modular monoliths with strict module isolation — cross-module communication via Facades or Domain Events only. Whether to additionally adopt a Microkernel/plug-in architecture (e.g., for Edge machine-protocol adapters) is an open question — see [ADR-0003](../docs/adr/0003-microkernel-architecture-consideration.md); it may refine this principle later but does not change it yet.
 4. **Domain-First:** Within each slice, pure Java domain logic is implemented before any infrastructure code.
 5. **Monorepo:** All modules (`shared-kernel`, `edge-backend`, `cloud-backend`, `simulator`, `frontend`) live in a single repository.
 6. **Helm Deployments:** Cloud on k8s, Edge on k3s — both managed via Helm charts.
+7. **TDD:** For every numbered step below that produces code, the "Tests" item listed for that piece is written and run red *before* the corresponding Domain/Application/Infrastructure code, not after — the numbering reflects deliverables, not coding order. See `CLAUDE.md`.
+8. **Shift Left:** Every vertical slice/phase gets an architecture and security evaluation both *before* implementation starts (design-time — does the planned approach fit the principles above, does it introduce a security concern) and *after* the code is written (a check, not a replacement). Phase 15 (E2E & Hardening) is a final, cross-cutting pass — it does not replace per-slice evaluation earlier. See `CLAUDE.md`.
+9. **No Single Point of Assumption Failure:** Don't let a slice's design hinge entirely on one unverified technical detail (a library's behavior, a protocol capability, an external system's guarantee). State load-bearing assumptions explicitly and verify them early; prefer designs that degrade gracefully or need only a local fix if an assumption turns out wrong, over ones that would require a wholesale redesign. See `CLAUDE.md`.
+10. **Design for Testability:** For every slice/phase, explicitly answer "how will this be tested end-to-end?" as part of the design, not only once Phase 15 (E2E Testing & Production Hardening) arrives. A design that makes E2E testing hard or unclear is a design flaw to fix at design time (a testable seam, a fake, Testcontainers, or the Simulator module) — this is why Phase 13 (Simulator) exists ahead of Phase 15. See `CLAUDE.md`.
+11. **Contract Testing:** Every REST boundary between separately deployable parts (Edge↔Cloud sync, Cloud user-management API, Frontend↔Cloud API) needs contract tests verifying the consumer's actual expectations against the provider, not just each side's own unit/integration tests — added at the slice that introduces the boundary, not deferred to Phase 15. Tooling (e.g., Pact) is an open decision — see [ADR-0005](../docs/adr/0005-contract-testing-tooling.md). See `CLAUDE.md`.
+12. **Tool & Skill Evaluation:** Potentially useful AI agent skills and developer tools/libraries (testing frameworks, architecture-fitness-function tools, linters, CI integrations, etc.) should be surfaced proactively as they become relevant to a slice/phase, then evaluated before adoption — a lightweight fit-check for routine additions, or an ADR for anything cross-cutting or hard to reverse. This is an ongoing activity across all phases, not a one-time step. See `CLAUDE.md`.
+13. **Documentation Standard:** Every decision, implementation, design/architecture choice, and security consideration gets documented — concisely but precisely, the *why* and its consequences, not a restatement of the obvious. ADRs for cross-cutting decisions, Javadoc/`package-info.java` for public Domain/Application code and module boundaries, explicit security notes wherever a security consideration was actually evaluated. See `CLAUDE.md`.
+14. **No Primitive Obsession & Readable Code:** Wrap any primitive that carries domain meaning (a serial number, a quantity with a unit, a recipe version ID) in a Value Object rather than passing it around raw. Write code that reads top-to-bottom like prose — intention-revealing names, small methods at one level of abstraction, minimal nesting, no clever one-liners. See `CLAUDE.md`.
+15. **Design for Observability:** For every slice/phase, explicitly answer "how will we observe and monitor this at runtime?" (logs, metrics, trace spans) as part of the design, not only once Phase 10 (Observability & Distributed Tracing) arrives — Shift Left applied to observability specifically. A component whose behavior or failure modes would be invisible at runtime is a design flaw to fix at design time. See `CLAUDE.md`.
 
 ## Repository Structure
 
@@ -57,11 +66,13 @@ production/
 
 ---
 
+> **Prerequisite:** See `docs/adr/README.md` → "Agent Tooling & Guardrails Prerequisites" before starting Phase 0. AI agent guardrails (scope of autonomous action vs. what needs human sign-off) are flagged there as a pending action point — not yet researched or decided.
+
 ## Phase 0: Project Skeleton
 
 - [ ] **0.1** Create `settings.gradle.kts` with subprojects: `shared-kernel`, `edge-backend`, `cloud-backend`, `simulator`
 - [ ] **0.2** Create root `build.gradle.kts` — Java 21 toolchain, common plugins, test dependencies (JUnit 5, AssertJ, Mockito)
-- [ ] **0.3** Create `gradle/libs.versions.toml` — version catalog for Spring Boot 4, PostgreSQL, Flyway, Micrometer, Testcontainers, Eclipse Paho, Jackson, Resilience4j
+- [ ] **0.3** Create `gradle/libs.versions.toml` — version catalog for Spring Boot 4, PostgreSQL, Flyway, Micrometer, Testcontainers, Eclipse Paho, Jackson, Resilience4j, ArchUnit
 - [ ] **0.4** Create `shared-kernel/build.gradle.kts` — plain `java-library`, no Spring
 - [ ] **0.5** Create `edge-backend/build.gradle.kts` — Spring Boot plugin, depends on `shared-kernel`
 - [ ] **0.6** Create `cloud-backend/build.gradle.kts` — Spring Boot plugin, depends on `shared-kernel`
@@ -69,13 +80,16 @@ production/
 - [ ] **0.8** Create minimal `Application.java` + `application.yml` for Edge (port 8081) and Cloud (port 8080) with `spring.threads.virtual.enabled=true`
 - [ ] **0.9** Add `.gitignore` for Gradle/Java/Node
 - [ ] **0.10** Add Gradle wrapper (`gradlew`, `gradle/wrapper/`)
-- [ ] **0.11** Verify: `./gradlew build` passes, both apps respond on `/actuator/health`
+- [ ] **0.11** Add an ArchUnit test suite (`edge-backend` and `cloud-backend`, run as part of each module's own test task) enforcing: (a) `domain` packages contain no Web/API annotations (`@RestController`, `@RequestMapping`) or Database/JPA annotations (`@Entity`, `@Table`, `@Column`); (b) Hexagonal layer dependency direction — `domain` must not depend on `application` or `infrastructure`, `application` must not depend on `infrastructure`; (c) Module isolation — no top-level business-domain package (e.g., `com.mes.edge.production`) reaches into another's `infrastructure.persistence` classes directly. See `CLAUDE.md` Hexagonal Architecture Rules and Module Isolation.
+- [ ] **0.12** Verify: `./gradlew build` passes, both apps respond on `/actuator/health`, and the ArchUnit suite passes (trivially, on the still-empty skeleton) and is wired into the normal build so future architecture violations fail CI automatically
 
 ---
 
 ## Phase 1: Vertical Slice — Operation Flow (Flow Management)
 
 > *The foundational slice: start/end operations on a production line. Establishes the core Product aggregate, the hexagonal patterns, and the first Flyway migrations.*
+>
+> **PARTIALLY BLOCKED on [ADR-0002](../docs/adr/0002-error-handling-for-expected-business-outcomes.md):** the error-handling strategy for expected business outcomes (e.g., "product not found", invalid state transition) is not yet decided. Steps 1.1-1.6 (value objects, events, `Product`/`Operation` shape, state machine transitions themselves) can proceed since they don't hinge on it, but **1.7's use-case method signatures should be treated as provisional** until ADR-0002 is `Accepted` — they may need to change shape (e.g., return type instead of a thrown exception) once the decision lands.
 
 ### Shared Kernel (incremental)
 - [ ] **1.1** Add `ProductId`, `StationId`, `LineId`, `OperationId` value objects (Java records, validated)
@@ -86,7 +100,7 @@ production/
 - [ ] **1.4** **Domain:** `Product` aggregate root (id, serialNumber, state, list of operations)
 - [ ] **1.5** **Domain:** `Operation` value object (stationId, startTime, endTime, parameters)
 - [ ] **1.6** **Domain:** `ProductStateMachine` — transition logic with `EnumMap` (for now: `NEW → IN_PROGRESS → COMPLETED`)
-- [ ] **1.7** **Domain ports (incoming):** `StartOperationUseCase`, `EndOperationUseCase`
+- [ ] **1.7** **Domain ports (incoming):** `StartOperationUseCase`, `EndOperationUseCase` (return/error shape pending ADR-0002)
 - [ ] **1.8** **Domain ports (outgoing):** `ProductRepository`, `EventPublisher`
 - [ ] **1.9** **Domain service:** `ProductionService` (implements use cases, `@Service` allowed)
 - [ ] **1.10** **Application:** `OperationAppService` — orchestrates domain calls, `@Transactional`
@@ -108,6 +122,7 @@ production/
 ### Edge→Cloud Sync
 - [ ] **1.23** **Edge infrastructure:** `CloudSyncAdapter` (implements `CloudSyncPort`) — REST client pushing operation events to Cloud
 - [ ] **1.24** Add `ProductEventDto` to `shared-kernel/api/` for the Edge→Cloud contract
+- [ ] **1.25** Contract test for the `ProductEventDto` / `POST /api/edge/sync/operations` boundary — pending tooling decision, [ADR-0005](../docs/adr/0005-contract-testing-tooling.md)
 
 ---
 
@@ -177,7 +192,7 @@ production/
   - `IN_PROGRESS → COMPLETED | IN_REPAIR | SCRAPPED`
   - `IN_REPAIR → IN_PROGRESS (repass) | SCRAPPED`
   - `SCRAPPED` = terminal (no outgoing transitions)
-  - Throws `IllegalStateTransitionException` on invalid moves
+  - Signals an invalid move via `IllegalStateTransitionException` — placeholder pending [ADR-0002](../docs/adr/0002-error-handling-for-expected-business-outcomes.md); an invalid transition is an expected business outcome, not necessarily exception-worthy
 - [ ] **4.4** **Domain ports:** `ScrapProductUseCase`, `RepairProductUseCase`, `RepassProductUseCase`
 - [ ] **4.5** **Domain service:** Extend `ProductionService` with scrap/repair/repass logic
 - [ ] **4.6** **Application:** `ProductLifecycleAppService` — orchestration + event publishing
@@ -248,6 +263,8 @@ production/
 ## Phase 7: Cloud — User Management & Authorization
 
 > *Roles: Process Engineer, Production Manager, Logistics, Operator. Role-based access control.*
+>
+> **BLOCKED on [ADR-0001](../docs/adr/0001-authentication-and-authorization-approach.md):** the authentication/authorization mechanism has not been decided yet. Steps 7.1-7.6 (user/role modeling, independent of the auth mechanism) may proceed, but **7.7 onward must not start** until ADR-0001's Status is `Accepted`. Do not treat "JWT-based" below as a settled decision.
 
 ### Cloud — `user` module (new)
 - [ ] **7.1** **Domain:** `User` aggregate (id, username, roles), `Role` enum (`PROCESS_ENGINEER`, `PRODUCTION_MANAGER`, `LOGISTICS`, `OPERATOR`)
@@ -256,7 +273,7 @@ production/
 - [ ] **7.4** **Application:** `UserAppService`
 - [ ] **7.5** **Infrastructure/persistence:** `UserEntity`, Flyway migrations
 - [ ] **7.6** **Infrastructure/web:** `UserController` (CRUD)
-- [ ] **7.7** **Infrastructure/security:** `SecurityConfig` (Spring Security, JWT-based), `RoleBasedAccessConfig` (`@PreAuthorize` per role)
+- [ ] **7.7** **Infrastructure/security:** `SecurityConfig` (mechanism per ADR-0001, tentatively "JWT-based" — unconfirmed), `RoleBasedAccessConfig` (`@PreAuthorize` per role)
 - [ ] **7.8** Apply role-based access to all existing Cloud controllers:
   - `PROCESS_ENGINEER`: recipes, quality params, line config
   - `PRODUCTION_MANAGER`: read all, manage lines, dashboards
@@ -295,7 +312,11 @@ production/
 
 ## Phase 10: Observability & Distributed Tracing
 
-- [ ] **10.1** Configure Micrometer Tracing — `TraceID` propagation via MDC in both Edge and Cloud
+> **BLOCKED on [ADR-0004](../docs/adr/0004-logging-and-tracing-standard.md):** the tracing standard/bridge (e.g., OpenTelemetry vs. Zipkin/B3) is not yet decided. Steps 10.3-10.6 (healthchecks, Prometheus metrics, Grafana dashboards) don't depend on it and may proceed, but **10.1-10.2 (tracer configuration and propagation) should not be implemented for real** until ADR-0004 is `Accepted` — the propagation format and exporter choice hinge on it, including the non-standard MQTT hop noted in the ADR.
+>
+> Per Guiding Principle 15 (Design for Observability), this phase builds the *cross-cutting* tracing/metrics infrastructure — it is not the first point at which observability gets considered. Phases 1-9 and 11+ should already have decided, at design time, what each of their components logs/emits on the axes this phase wires up.
+
+- [ ] **10.1** Configure Micrometer Tracing — `TraceID` propagation via MDC in both Edge and Cloud (tracer/bridge per ADR-0004)
 - [ ] **10.2** MDC filter injects `TraceID` into every log line; Edge events carry TraceID to Cloud
 - [ ] **10.3** Spring Boot Actuator healthchecks — Edge monitors machine connectivity, Cloud monitors Edge uptime
 - [ ] **10.4** Prometheus metrics endpoint (`/actuator/prometheus`) on both apps
@@ -342,6 +363,8 @@ production/
 
 ## Phase 13: Simulator Module
 
+> **Performance is a priority NFR for this module:** the simulator must scale to 1,000–10,000 concurrently running virtual machines on a single instance (see [SPEC.md](SPEC.md) §6). Design `VirtualMachine` state and scheduling to be lightweight per-instance from the start — this constraint should shape 13.1–13.5, not be retrofitted at 13.8.
+
 - [ ] **13.1** `VirtualMachine` — runs on virtual thread, produces data at configurable intervals
 - [ ] **13.2** `VirtualLine` — ordered set of virtual machines
 - [ ] **13.3** `DataGenerator` — realistic process parameters (temperature, pressure, torque) with configurable mean/stddev
@@ -349,10 +372,13 @@ production/
 - [ ] **13.5** `SimulatorMqttPublisher` — publishes to Edge-expected MQTT topics
 - [ ] **13.6** REST API: `SimulatorController` (`POST /api/simulator/start`, `/stop`, `/configure`)
 - [ ] **13.7** **Tests:** Unit tests for data generation; integration test: simulator → MQTT → Edge
+- [ ] **13.8** **Performance:** Benchmark test spinning up 1,000–10,000 concurrent `VirtualMachine` instances on one simulator process; measure memory/CPU per virtual machine and scheduling overhead independent of downstream Edge/Cloud load. Tune virtual-thread pinning, GC settings, and per-VM allocations until the target range runs without degradation.
 
 ---
 
 ## Phase 14: React Frontend
+
+> Follow the Frontend Development Guidelines in `CLAUDE.md`: frontend architecture and security best practices apply here (not just Edge/Cloud), and UX/UI design decisions (mockups, wireframes, screen flows for 14.4-14.10) should go through a dedicated UX design tool/skill rather than being decided ad hoc in component code. Note 14.2/14.3's JWT handling is tentative pending [ADR-0001](../docs/adr/0001-authentication-and-authorization-approach.md).
 
 - [ ] **14.1** Initialize Vite + React + TypeScript project in `frontend/`
 - [ ] **14.2** API client layer (typed fetch wrapper, JWT handling)
@@ -376,7 +402,7 @@ production/
 - [ ] **15.2** E2E: full product lifecycle (create → operations → quality → pack → ship)
 - [ ] **15.3** E2E: scrap/rework flow (defect → scrap or repair → repass)
 - [ ] **15.4** E2E: full traceability chain (product → components, container → products)
-- [ ] **15.5** E2E: Edge→Cloud sync (data flows correctly, idempotent)
+- [ ] **15.5** E2E: Edge→Cloud sync (data flows correctly, idempotent) — complements, does not replace, the per-boundary contract tests from Guiding Principle 11
 - [ ] **15.6** E2E: recipe versioning (new recipe → propagates to Edge → products linked to correct version)
 - [ ] **15.7** Load test: simulator running 10K products, verify zero performance degradation
 - [ ] **15.8** HikariCP connection pool tuning
