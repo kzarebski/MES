@@ -365,6 +365,8 @@ production/
 
 ## Phase 14: React Frontend
 
+> Follow the Frontend Development Guidelines in `CLAUDE.md`: frontend architecture and security best practices apply here (not just Edge/Cloud), and UX/UI design decisions (mockups, wireframes, screen flows for 14.4-14.10) should go through a dedicated UX design tool/skill rather than being decided ad hoc in component code. Note 14.2/14.3's JWT handling is tentative pending [ADR-0001](../docs/adr/0001-authentication-and-authorization-approach.md).
+
 - [ ] **14.1** Initialize Vite + React + TypeScript project in `frontend/`
 - [ ] **14.2** API client layer (typed fetch wrapper, JWT handling)
 - [ ] **14.3** Auth context, login page, role-based route guards (`ProtectedRoute`)
