@@ -11,6 +11,16 @@ Write an ADR before implementing anything that:
 
 Routine implementation choices within an already-agreed slice do not need one.
 
+## Tooling Prerequisites (before further architecture-design work)
+
+Before the open ADRs above are pushed toward a decision, or any new architecture-design ADR is started, set up the agent tooling meant to support that work:
+
+- [ ] Install the [Product-Manager-Skills](https://github.com/deanpeters/Product-Manager-Skills) Claude Code plugin (`claude /plugin marketplace add deanpeters/Product-Manager-Skills`) — covers business-analyst work (requirements, PRDs, user stories/acceptance criteria) and product-manager work (roadmap sequencing, prioritization) with battle-tested frameworks rather than ad hoc prompting. User action — third-party plugin, not installed by the agent.
+- [ ] Build a custom `architect` skill (via `skill-creator`) scoped to architecture-*design* — evaluating structural options, drafting/updating ADRs, checking a direction against Hexagonal/DDD/Modular Monolith principles — distinct from the `Plan` subagent, which handles step-by-step implementation planning, not design.
+- [ ] Build a custom `mentor` skill (via `skill-creator`) scoped to strategic technical sanity-checking across the whole project — is the overall direction still sound, is debt accumulating across phases, are earlier ADRs still holding up — distinct from `/code-review`, which operates at the PR/branch level.
+
+No off-the-shelf skill exists yet for `architect` or `mentor` (checked 2026-08-29); `skill-creator` is the path for both.
+
 ## Process
 
 1. Copy `0000-template.md` to `NNNN-short-title.md` (next sequential number).
