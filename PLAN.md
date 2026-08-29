@@ -67,7 +67,7 @@ production/
 
 - [ ] **0.1** Create `settings.gradle.kts` with subprojects: `shared-kernel`, `edge-backend`, `cloud-backend`, `simulator`
 - [ ] **0.2** Create root `build.gradle.kts` — Java 21 toolchain, common plugins, test dependencies (JUnit 5, AssertJ, Mockito)
-- [ ] **0.3** Create `gradle/libs.versions.toml` — version catalog for Spring Boot 4, PostgreSQL, Flyway, Micrometer, Testcontainers, Eclipse Paho, Jackson, Resilience4j
+- [ ] **0.3** Create `gradle/libs.versions.toml` — version catalog for Spring Boot 4, PostgreSQL, Flyway, Micrometer, Testcontainers, Eclipse Paho, Jackson, Resilience4j, ArchUnit
 - [ ] **0.4** Create `shared-kernel/build.gradle.kts` — plain `java-library`, no Spring
 - [ ] **0.5** Create `edge-backend/build.gradle.kts` — Spring Boot plugin, depends on `shared-kernel`
 - [ ] **0.6** Create `cloud-backend/build.gradle.kts` — Spring Boot plugin, depends on `shared-kernel`
@@ -75,7 +75,8 @@ production/
 - [ ] **0.8** Create minimal `Application.java` + `application.yml` for Edge (port 8081) and Cloud (port 8080) with `spring.threads.virtual.enabled=true`
 - [ ] **0.9** Add `.gitignore` for Gradle/Java/Node
 - [ ] **0.10** Add Gradle wrapper (`gradlew`, `gradle/wrapper/`)
-- [ ] **0.11** Verify: `./gradlew build` passes, both apps respond on `/actuator/health`
+- [ ] **0.11** Add an ArchUnit test suite (`edge-backend` and `cloud-backend`, run as part of each module's own test task) enforcing: (a) `domain` packages contain no Web/API annotations (`@RestController`, `@RequestMapping`) or Database/JPA annotations (`@Entity`, `@Table`, `@Column`); (b) Hexagonal layer dependency direction — `domain` must not depend on `application` or `infrastructure`, `application` must not depend on `infrastructure`; (c) Module isolation — no top-level business-domain package (e.g., `com.mes.edge.production`) reaches into another's `infrastructure.persistence` classes directly. See `CLAUDE.md` Hexagonal Architecture Rules and Module Isolation.
+- [ ] **0.12** Verify: `./gradlew build` passes, both apps respond on `/actuator/health`, and the ArchUnit suite passes (trivially, on the still-empty skeleton) and is wired into the normal build so future architecture violations fail CI automatically
 
 ---
 
