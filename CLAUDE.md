@@ -18,6 +18,7 @@
   4. Refactor if needed, keeping tests green.
   - Do not write production code for a step before its corresponding test exists and has been confirmed red.
 - **Architecture Decision Records (ADR):** Significant, cross-cutting, or hard-to-reverse architectural decisions (e.g., authentication/authorization mechanism, messaging patterns, storage strategy) MUST be recorded as an ADR in `docs/adr/` before implementation starts — see `docs/adr/README.md` for the process and template. Do not start implementing a `PLAN.md` step that depends on such a decision while its ADR is still `Status: Proposed`.
+- **No Exceptions for Expected Business Outcomes:** Do not use Java exceptions to represent normal, expected business results (e.g., "not found", a failed validation, an invalid state transition) — reserve exceptions for truly exceptional, unrecoverable, or programmer-error conditions (infra failures, bugs). The concrete mechanism for expected outcomes (e.g., an `Either`/`Result` type, or another approach) is not yet decided — see [ADR-0002](docs/adr/0002-error-handling-for-expected-business-outcomes.md). Do not implement Domain ports whose contracts depend on this decision until ADR-0002 is `Accepted`.
 
 ## Git Workflow & Pull Requests (Strict Rules)
 - **NEVER** commit or push directly to the `main` or `master` branch.

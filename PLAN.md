@@ -77,6 +77,8 @@ production/
 ## Phase 1: Vertical Slice — Operation Flow (Flow Management)
 
 > *The foundational slice: start/end operations on a production line. Establishes the core Product aggregate, the hexagonal patterns, and the first Flyway migrations.*
+>
+> **PARTIALLY BLOCKED on [ADR-0002](../docs/adr/0002-error-handling-for-expected-business-outcomes.md):** the error-handling strategy for expected business outcomes (e.g., "product not found", invalid state transition) is not yet decided. Steps 1.1-1.6 (value objects, events, `Product`/`Operation` shape, state machine transitions themselves) can proceed since they don't hinge on it, but **1.7's use-case method signatures should be treated as provisional** until ADR-0002 is `Accepted` — they may need to change shape (e.g., return type instead of a thrown exception) once the decision lands.
 
 ### Shared Kernel (incremental)
 - [ ] **1.1** Add `ProductId`, `StationId`, `LineId`, `OperationId` value objects (Java records, validated)
@@ -87,7 +89,7 @@ production/
 - [ ] **1.4** **Domain:** `Product` aggregate root (id, serialNumber, state, list of operations)
 - [ ] **1.5** **Domain:** `Operation` value object (stationId, startTime, endTime, parameters)
 - [ ] **1.6** **Domain:** `ProductStateMachine` — transition logic with `EnumMap` (for now: `NEW → IN_PROGRESS → COMPLETED`)
-- [ ] **1.7** **Domain ports (incoming):** `StartOperationUseCase`, `EndOperationUseCase`
+- [ ] **1.7** **Domain ports (incoming):** `StartOperationUseCase`, `EndOperationUseCase` (return/error shape pending ADR-0002)
 - [ ] **1.8** **Domain ports (outgoing):** `ProductRepository`, `EventPublisher`
 - [ ] **1.9** **Domain service:** `ProductionService` (implements use cases, `@Service` allowed)
 - [ ] **1.10** **Application:** `OperationAppService` — orchestrates domain calls, `@Transactional`
@@ -178,7 +180,7 @@ production/
   - `IN_PROGRESS → COMPLETED | IN_REPAIR | SCRAPPED`
   - `IN_REPAIR → IN_PROGRESS (repass) | SCRAPPED`
   - `SCRAPPED` = terminal (no outgoing transitions)
-  - Throws `IllegalStateTransitionException` on invalid moves
+  - Signals an invalid move via `IllegalStateTransitionException` — placeholder pending [ADR-0002](../docs/adr/0002-error-handling-for-expected-business-outcomes.md); an invalid transition is an expected business outcome, not necessarily exception-worthy
 - [ ] **4.4** **Domain ports:** `ScrapProductUseCase`, `RepairProductUseCase`, `RepassProductUseCase`
 - [ ] **4.5** **Domain service:** Extend `ProductionService` with scrap/repair/repass logic
 - [ ] **4.6** **Application:** `ProductLifecycleAppService` — orchestration + event publishing
