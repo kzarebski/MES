@@ -8,6 +8,7 @@
 4. **Domain-First:** Within each slice, pure Java domain logic is implemented before any infrastructure code.
 5. **Monorepo:** All modules (`shared-kernel`, `edge-backend`, `cloud-backend`, `simulator`, `frontend`) live in a single repository.
 6. **Helm Deployments:** Cloud on k8s, Edge on k3s — both managed via Helm charts.
+7. **TDD:** For every numbered step below that produces code, the "Tests" item listed for that piece is written and run red *before* the corresponding Domain/Application/Infrastructure code, not after — the numbering reflects deliverables, not coding order. See `CLAUDE.md`.
 
 ## Repository Structure
 
@@ -342,6 +343,8 @@ production/
 
 ## Phase 13: Simulator Module
 
+> **Performance is a priority NFR for this module:** the simulator must scale to 1,000–10,000 concurrently running virtual machines on a single instance (see [SPEC.md](SPEC.md) §6). Design `VirtualMachine` state and scheduling to be lightweight per-instance from the start — this constraint should shape 13.1–13.5, not be retrofitted at 13.8.
+
 - [ ] **13.1** `VirtualMachine` — runs on virtual thread, produces data at configurable intervals
 - [ ] **13.2** `VirtualLine` — ordered set of virtual machines
 - [ ] **13.3** `DataGenerator` — realistic process parameters (temperature, pressure, torque) with configurable mean/stddev
@@ -349,6 +352,7 @@ production/
 - [ ] **13.5** `SimulatorMqttPublisher` — publishes to Edge-expected MQTT topics
 - [ ] **13.6** REST API: `SimulatorController` (`POST /api/simulator/start`, `/stop`, `/configure`)
 - [ ] **13.7** **Tests:** Unit tests for data generation; integration test: simulator → MQTT → Edge
+- [ ] **13.8** **Performance:** Benchmark test spinning up 1,000–10,000 concurrent `VirtualMachine` instances on one simulator process; measure memory/CPU per virtual machine and scheduling overhead independent of downstream Edge/Cloud load. Tune virtual-thread pinning, GC settings, and per-VM allocations until the target range runs without degradation.
 
 ---
 

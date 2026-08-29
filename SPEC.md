@@ -44,6 +44,7 @@ The system consists of two main environments communicating via REST API and asyn
 * **Integration Tests:** Utilizing Testcontainers for database and adapter verification.
 * **E2E Tests:** Verifying critical data flow paths.
 * **Traffic Simulator:** A separate module with a UI to configure virtual machines and generate realistic test traffic for Edge/Cloud systems.
+    * **Performance Requirement:** The simulator must scale to run a large number of concurrent virtual production machines on a single instance — target range 1,000–10,000 — by leveraging Java Virtual Threads and lightweight per-machine state. This is a priority NFR: simulator throughput must not become the bottleneck when load-testing Edge/Cloud.
 
 ## 7. AI Agent Guidelines (Specification Driven Development)
 * **Modularity:** Maintain strict separation between `cloud-backend`, `edge-backend`, and `simulator` modules.

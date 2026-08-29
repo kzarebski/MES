@@ -11,3 +11,19 @@
 - **Module Isolation:** Cross-module communication must happen via public interfaces (Facades) or Domain Events. A domain in one module CANNOT directly access the database repository of another module.
 - **Vertical Slicing (Feature by Feature):** Develop the system one complete vertical slice at a time (e.g., Domain -> App -> Infra -> Tests for "Operation Flow", then move to "Quality Control").
 - **Incremental Shared Kernel:** DO NOT build the entire `shared-kernel` upfront. Add DTOs, Value Objects, and Domain Events to the shared kernel incrementally ONLY when a new vertical slice requires them to communicate between Edge, Cloud, or different modules.
+- **Test-Driven Development (TDD) — MANDATORY for every task/step:**
+  1. Write the test(s) for the behavior first (unit test for Domain logic, integration test for Infrastructure adapters, etc.), before writing any production code.
+  2. Run the test suite and confirm the new test(s) FAIL (red) — this proves the test actually exercises the intended behavior.
+  3. Write the minimum production code needed to make the test(s) PASS (green).
+  4. Refactor if needed, keeping tests green.
+  - Do not write production code for a step before its corresponding test exists and has been confirmed red.
+
+## Git Workflow & Pull Requests (Strict Rules)
+- **NEVER** commit or push directly to the `main` or `master` branch.
+- Before starting any new task, feature, or phase from `PLAN.md`, always create and checkout a new branch from `main`.
+- **Strict Branch Naming Convention:** The branch name MUST start with the task type (`feature/`, `chore/`, `fix/`, `refactor/`), followed immediately by the exact phase and step number from `PLAN.md`, and a short description.
+- Format: `<type>/<phase>.<step>-<description>`
+- Examples based on PLAN.md: `chore/0.1-gradle-skeleton`, `feature/1.2-product-state-machine`, `feature/2.1-operation-flow`.
+- When the code for the task is ready and tests pass, commit using Conventional Commits containing the task number (e.g., `feat(1.2): implement product state machine`).
+- Push the branch to the remote repository: `git push -u origin <branch-name>`.
+- After pushing, use the GitHub CLI to create a Pull Request: `gh pr create --title "<PR Title>" --body "<PR Description>"`. If GitHub CLI is not available, provide the user with the exact GitHub web link to open the PR.
