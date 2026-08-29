@@ -45,3 +45,4 @@ Until this ADR is Accepted:
 - Do not hard-code a specific tracer bridge (Brave/Zipkin vs OpenTelemetry) or exporter/collector dependency in `libs.versions.toml` or application config beyond what's needed for Phases 0-9, which don't require tracing.
 - The MQTT trace-propagation gap (no standard binding) needs its own explicit design once the base standard is chosen — do not invent an ad hoc propagation scheme before that.
 - `PLAN.md` step 10.1 ("Configure Micrometer Tracing") should be read as provisional pending this decision.
+- The blocking-vs-non-blocking error message convention (`CLAUDE.md`) applies regardless of this decision's outcome — it's a message-content/log-level rule, orthogonal to which tracing standard/bridge is chosen.
