@@ -4,7 +4,7 @@
 
 1. **Vertical Slicing:** Each feature is built as a complete slice (Domain → Application → Infrastructure → Tests) before moving to the next.
 2. **Incremental Shared Kernel:** Value objects, DTOs, and events are added to `shared-kernel` only when a slice requires cross-module communication.
-3. **Modular Monolith:** Both Edge and Cloud are structured as modular monoliths with strict module isolation — cross-module communication via Facades or Domain Events only.
+3. **Modular Monolith:** Both Edge and Cloud are structured as modular monoliths with strict module isolation — cross-module communication via Facades or Domain Events only. Whether to additionally adopt a Microkernel/plug-in architecture (e.g., for Edge machine-protocol adapters) is an open question — see [ADR-0003](../docs/adr/0003-microkernel-architecture-consideration.md); it may refine this principle later but does not change it yet.
 4. **Domain-First:** Within each slice, pure Java domain logic is implemented before any infrastructure code.
 5. **Monorepo:** All modules (`shared-kernel`, `edge-backend`, `cloud-backend`, `simulator`, `frontend`) live in a single repository.
 6. **Helm Deployments:** Cloud on k8s, Edge on k3s — both managed via Helm charts.

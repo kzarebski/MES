@@ -25,3 +25,4 @@ Routine implementation choices within an already-agreed slice do not need one.
 |-----|-------|--------|
 | [0001](0001-authentication-and-authorization-approach.md) | Authentication & Authorization Approach | Proposed — decision pending |
 | [0002](0002-error-handling-for-expected-business-outcomes.md) | Error Handling for Expected (Non-Exceptional) Business Outcomes | Proposed — decision pending |
+| [0003](0003-microkernel-architecture-consideration.md) | Microkernel (Plug-in) Architecture Consideration | Proposed — decision pending |
