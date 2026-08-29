@@ -55,3 +55,4 @@ The system consists of two main environments communicating via REST API and asyn
 * **Never Assume:** If a requirement, decision, or detail is unclear or ambiguous, ask the user explicitly rather than assuming an interpretation.
 * **Architectural & Security Vigilance:** Proactively report anything — proposed or already in the codebase — that violates the architectural principles in this document/`CLAUDE.md`, or that introduces a security issue or unsafe practice, even without being asked to review for it.
 * **State Consequences:** When presenting a decision or trade-off, explicitly state its consequences (what becomes easier/harder, risks, follow-up work) rather than presenting it as consequence-free.
+* **Documentation Standard:** Every decision, implementation, design/architecture choice, and security consideration must be documented — concisely but precisely. See `CLAUDE.md` for the concrete mechanisms (ADRs, Javadoc/`package-info.java`, security notes).
