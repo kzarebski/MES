@@ -21,6 +21,12 @@
 - **No Exceptions for Expected Business Outcomes:** Do not use Java exceptions to represent normal, expected business results (e.g., "not found", a failed validation, an invalid state transition) — reserve exceptions for truly exceptional, unrecoverable, or programmer-error conditions (infra failures, bugs). The concrete mechanism for expected outcomes (e.g., an `Either`/`Result` type, or another approach) is not yet decided — see [ADR-0002](docs/adr/0002-error-handling-for-expected-business-outcomes.md). Do not implement Domain ports whose contracts depend on this decision until ADR-0002 is `Accepted`.
 - **Logging & Tracing Standard Compatibility:** All logging and distributed-tracing implementation must be compatible with an established tracing standard (e.g., OpenTelemetry, or Zipkin/B3 via Micrometer's Brave bridge) rather than a bespoke scheme. Which standard to target is not yet decided — see [ADR-0004](docs/adr/0004-logging-and-tracing-standard.md). Do not hard-code a specific tracer bridge or exporter until ADR-0004 is `Accepted`.
 
+## AI Agent Collaboration Rules
+- **Never Assume — Always Ask:** If any requirement, task detail, or design decision is unclear, ambiguous, or underspecified, ask the user explicitly rather than guessing or silently picking a default.
+- **Architectural Vigilance:** Proactively flag any implementation detail, existing code, or proposed change — whether it's yours or the user's idea — that violates the architectural principles established here or in `SPEC.md` (Hexagonal layering, Modular Monolith, module isolation, TDD, etc.), even if not explicitly asked to review for it.
+- **Security Vigilance:** Proactively flag security issues or practices that violate secure coding standards (e.g., OWASP Top 10, credential/secret handling, injection risks) whenever encountered, regardless of whether a security review was requested.
+- **State Consequences:** When presenting a decision, recommendation, or trade-off, explicitly state its consequences (what becomes easier/harder, risks introduced, follow-up work created) rather than presenting it as consequence-free.
+
 ## Git Workflow & Pull Requests (Strict Rules)
 - **NEVER** commit or push directly to the `main` or `master` branch.
 - Before starting any new task, feature, or phase from `PLAN.md`, always create and checkout a new branch from `main`.

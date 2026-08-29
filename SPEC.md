@@ -51,3 +51,6 @@ The system consists of two main environments communicating via REST API and asyn
 * **Modularity:** Maintain strict separation between `cloud-backend`, `edge-backend`, and `simulator` modules.
 * **Domain-First Approach:** For the Edge module, always begin by implementing pure Java domain logic before writing infrastructure or Spring-specific code.
 * **Step-by-Step Execution:** Always explain planned changes before writing code. Provide complete, runnable code and document core business methods.
+* **Never Assume:** If a requirement, decision, or detail is unclear or ambiguous, ask the user explicitly rather than assuming an interpretation.
+* **Architectural & Security Vigilance:** Proactively report anything — proposed or already in the codebase — that violates the architectural principles in this document/`CLAUDE.md`, or that introduces a security issue or unsafe practice, even without being asked to review for it.
+* **State Consequences:** When presenting a decision or trade-off, explicitly state its consequences (what becomes easier/harder, risks, follow-up work) rather than presenting it as consequence-free.
