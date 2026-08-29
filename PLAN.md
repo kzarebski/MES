@@ -249,6 +249,8 @@ production/
 ## Phase 7: Cloud — User Management & Authorization
 
 > *Roles: Process Engineer, Production Manager, Logistics, Operator. Role-based access control.*
+>
+> **BLOCKED on [ADR-0001](../docs/adr/0001-authentication-and-authorization-approach.md):** the authentication/authorization mechanism has not been decided yet. Steps 7.1-7.6 (user/role modeling, independent of the auth mechanism) may proceed, but **7.7 onward must not start** until ADR-0001's Status is `Accepted`. Do not treat "JWT-based" below as a settled decision.
 
 ### Cloud — `user` module (new)
 - [ ] **7.1** **Domain:** `User` aggregate (id, username, roles), `Role` enum (`PROCESS_ENGINEER`, `PRODUCTION_MANAGER`, `LOGISTICS`, `OPERATOR`)
@@ -257,7 +259,7 @@ production/
 - [ ] **7.4** **Application:** `UserAppService`
 - [ ] **7.5** **Infrastructure/persistence:** `UserEntity`, Flyway migrations
 - [ ] **7.6** **Infrastructure/web:** `UserController` (CRUD)
-- [ ] **7.7** **Infrastructure/security:** `SecurityConfig` (Spring Security, JWT-based), `RoleBasedAccessConfig` (`@PreAuthorize` per role)
+- [ ] **7.7** **Infrastructure/security:** `SecurityConfig` (mechanism per ADR-0001, tentatively "JWT-based" — unconfirmed), `RoleBasedAccessConfig` (`@PreAuthorize` per role)
 - [ ] **7.8** Apply role-based access to all existing Cloud controllers:
   - `PROCESS_ENGINEER`: recipes, quality params, line config
   - `PRODUCTION_MANAGER`: read all, manage lines, dashboards

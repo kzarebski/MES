@@ -17,6 +17,7 @@
   3. Write the minimum production code needed to make the test(s) PASS (green).
   4. Refactor if needed, keeping tests green.
   - Do not write production code for a step before its corresponding test exists and has been confirmed red.
+- **Architecture Decision Records (ADR):** Significant, cross-cutting, or hard-to-reverse architectural decisions (e.g., authentication/authorization mechanism, messaging patterns, storage strategy) MUST be recorded as an ADR in `docs/adr/` before implementation starts — see `docs/adr/README.md` for the process and template. Do not start implementing a `PLAN.md` step that depends on such a decision while its ADR is still `Status: Proposed`.
 
 ## Git Workflow & Pull Requests (Strict Rules)
 - **NEVER** commit or push directly to the `main` or `master` branch.

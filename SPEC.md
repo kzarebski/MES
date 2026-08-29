@@ -12,6 +12,7 @@ The system consists of two main environments communicating via REST API and asyn
 * **Cloud:** The centralized management system.
     * **Architecture:** Modular Monolith (ready to be extracted into microservices if scaling requires it).
     * **Responsibilities:** Aggregates historical data, serves UI, manages users, and distributes recipes/OTA updates.
+    * **Open Decision:** The authentication/authorization mechanism (human user RBAC and Edge↔Cloud machine auth) has not been decided yet — pending [ADR-0001](docs/adr/0001-authentication-and-authorization-approach.md).
     * **Deployment:** Deployed on standard **Kubernetes (k8s)** using **Helm** charts.
 
 ## 3. Technology Stack
